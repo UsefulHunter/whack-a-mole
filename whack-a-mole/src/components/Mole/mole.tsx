@@ -2,7 +2,19 @@ import styles from "./mole.module.css";
 import gsap from "gsap";
 import { useState, useRef, useEffect } from "react";
 
-const Mole = ({ points, delay, speed, onWhack, minimumPoints = 10 }) => {
+const Mole = ({
+  points,
+  delay,
+  speed,
+  onWhack,
+  minimumPoints = 10
+}: {
+  points: any;
+  delay: any;
+  speed: any;
+  onWhack: any;
+  minimumPoints?: number;
+}) => {
   const moleRef = useRef(null);
   const waveRef = useRef<gsap.core.Tween | null>(null);
   const pointsRef = useRef(points);
