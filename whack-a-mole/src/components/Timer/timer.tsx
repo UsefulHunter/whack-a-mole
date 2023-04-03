@@ -1,6 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 
-const Timer = ({ timeLimit, interval = 1000, onTimeUp }) => {
+const Timer = ({
+  timeLimit,
+  interval = 1000,
+  onTimeUp
+}: {
+  timeLimit: any;
+  interval?: number;
+  onTimeUp?: () => void;
+}) => {
   const [internalTime, setInternalTime] = useState(timeLimit);
   const timerRef = useRef(timeLimit);
   const timeRef = useRef(timeLimit);
