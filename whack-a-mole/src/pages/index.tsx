@@ -1,96 +1,82 @@
-import styles from '../styles/Main.module.css'
-import { useState } from 'react'
+import Moles from "@/components/Moles/moles";
+import Mole from "@/components/Mole/mole";
+import styles from "../styles/Main.module.css";
+import gsap from "gsap";
+import Score from "@/components/Score/score";
+import Timer from "@/components/Timer/timer";
 
+import { useState } from "react";
 
+const TIME_LIMIT = 120000;
+const MOLES = 12;
+const MOLE_SCORE = 10;
 export default function Home() {
   const [score, setScore] = useState(0);
-  const [holes, setHoles] = useState([])
-  const [activeHole, setActiveHole] = useState(null);
+  const [playing, setPlaying] = useState(false);
   const [timeUp, setTimeUp] = useState(false);
-  const [timeLimit, setTimeLimit] = useState(12000);
+  const generateHoles = () =>
+    new Array(12).fill(0).map(() => ({
+      speed: gsap.utils.random(0.5, 1),
+      delay: gsap.utils.random(0.5, 2),
+      points: MOLE_SCORE
+    }));
 
-  const randomTime = (min:number, max:number) => {
-    return Math.round(Math.random() * (max - min) + min);
-  }
-
-  const randomHole:(holes:any)=>void = (holes:any) => {
-    const idx = Math.floor(Math.random() * holes.length);
-    const hole = holes[idx];
-    if (hole === activeHole) {
-      return randomHole(holes);
-    }
-    setActiveHole(hole);
-  }
-
-  const peep = () => {
-    const time = randomTime(200, 1000);
-    const hole = randomHole(holes);
-    setTimeout(() => {
-      setActiveHole(null);
-      if (!timeUp) peep();
-    }, time);
-  }
+  const [moles, setMoles] = useState(generateHoles());
+  const endGame = () => {
+    setPlaying(false);
+    setTimeUp(true);
+  };
 
   const startGame = () => {
     setScore(0);
+    setMoles(generateHoles());
+    setPlaying(true);
     setTimeUp(false);
-    peep();
-    setTimeout(() => setTimeUp(true), timeLimit);
-  }
+  };
 
-  const whack = (e:any) => {
-    if (!e.isTrusted) return; //only human clicks will work
-    setScore(score + 1);
-    e?.target?.parentNode?.classList.remove('up');
-  }
-
-  const handleTimeLimit = (e:any) => {
-    setTimeLimit(e.target.value * 1000);
-  }
-
-  const handleHoles = (e:any) => {
-    //typed holes
-    const holes:any = [];
-    for (let i = 0; i < e.target.value; i++) {
-      holes.push(i);
-    }
-    setHoles(holes);
-  }
-
-  const handleScore = (e:any) => {
-    setScore(e.target.value);
-  }
-
-  const handleTimeUp = (e:any) => {
-    setTimeUp(e.target.value);
-  }
-
-  const handleActiveHole = (e:any) => {
-    setActiveHole(e.target.value);
-  }
-
-  const handleRandomHole = (e:any) => {
-    randomHole(holes);
-  }
-
-  const handlePeep = (e:any) => {
-    peep();
-  }
-
-  const handleStartGame = (e:any) => {
-    startGame();
-  }
-
-  const handleWhack = (e:any) => {
-    whack(e);
-  }
-
-
+  const onWhack = (points: any) => setScore(score + points);
 
   return (
     <>
       <div className={styles.container}>
-        </div>
+        {!playing && !timeUp && (
+          <>
+            <button className={styles.button} onClick={startGame}>
+              Start game
+            </button>
+          </>
+        )}
+        {playing && (
+          <>
+            <button className={styles.button} onClick={endGame}>
+              End game
+            </button>
+            <Score score={score} />
+            <Timer timeLimit={TIME_LIMIT} onTimeUp={endGame} />
+            <div className={styles.molesContainer}>
+              <Moles>
+                {moles.map(({ speed, delay, points }, id) => (
+                  <Mole
+                    key={id}
+                    onWhack={onWhack}
+                    points={points}
+                    delay={delay}
+                    speed={speed}
+                  />
+                ))}
+              </Moles>
+            </div>
+          </>
+        )}
+        {timeUp && (
+          <>
+            <Score score={score} />
+            <button className={styles.button} onClick={startGame}>
+              Play again
+            </button>
+          </>
+        )}
+      </div>
     </>
-  )
+  );
 }

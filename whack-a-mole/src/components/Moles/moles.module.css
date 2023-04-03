@@ -1,0 +1,7 @@
+.moles {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(4, 20vmin);
+    grid-template-rows: repeat(2, 20vmin);
+    align-items: center;
+}
